@@ -70,7 +70,7 @@ function App() {
   return (
   <div className="app">
     <div className="task-container">
-      <h1>Task list with priority</h1>
+      <h1>Task List With Priority</h1>
       <button 
         className={`close-button ${openSection.taskList ? "open" : ""}`}
         onClick={() => toggleSection("taskList")}
