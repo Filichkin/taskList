@@ -214,6 +214,17 @@ h2 {
   min-width: 0; /* Нужно для корректного сжатия внутри flex */
 }
 
+/* Responsible text style */
+.task-responsible {
+  font-size: 0.85em;
+  color: #666;           /* Чёрный цвет */     /* Жирный текст */
+  margin-top: 5px;
+}
+
+.placeholder-option {
+  color: #888;
+}
+
 /* Date text style */
 .task-deadline {
   font-size: 0.85em;

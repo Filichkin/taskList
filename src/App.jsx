@@ -39,17 +39,21 @@ function App() {
         return sortOrder === "asc" 
           ? priorityOrder[a.priority] - priorityOrder[b.priority] 
           :  priorityOrder[b.priority] - priorityOrder[a.priority];
-      } else {
-        return sortOrder === "asc"
-          ? new Date(a.deadline) - new Date(b.deadline) 
-          : new Date(b.deadline) - new Date(a.deadline);
-      }
-    });
-  }
+      } else if (sortType === "responsible") {
+      return sortOrder === "asc"
+        ? a.responsible.localeCompare(b.responsible)
+        : b.responsible.localeCompare(a.responsible);
+    } else {
+      return sortOrder === "asc"
+        ? new Date(a.deadline) - new Date(b.deadline)
+        : new Date(b.deadline) - new Date(a.deadline);
+    }
+  });
+}
 
   function toggleSortOrder(type) {
     if(sortType === type) {
-      setSortOrder(sortOrder === "asc" ? "dsc" : "asc");
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortType(type);
       setSortOrder("asc");
@@ -92,10 +96,16 @@ function App() {
           By Date {sortType === "date" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
         </button>
         <button
-          className={`sort-button ${sortType === "date" ? "priority" : ""}`}
+          className={`sort-button ${sortType === "priority" ? "active" : ""}`}
           onClick={() => toggleSortOrder("priority")}
         >
           By Priority {sortType === "priority" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+        </button>
+        <button
+          className={`sort-button ${sortType === "responsible" ? "active" : ""}`}
+          onClick={() => toggleSortOrder("responsible")}
+        >
+          By Responsible {sortType === "responsible" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
         </button>
       </div>
       {openSection.tasks && <TaskList completeTask={completeTask} deleteTask=
@@ -122,16 +132,20 @@ function TaskForm({addTask}) {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Low");
   const [deadline, setDeadline] = useState("");
+  const [responsible, setResponsible] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
     if(title.trim() && deadline) {
-      addTask({ title, priority, deadline });
+      addTask({ title, priority, responsible, deadline });
       setTitle("");
       setPriority("Low");
+      setResponsible("");
       setDeadline("");
     }
   }
+
+  const employes = ["Manager", "Specialist", "Team leader", "Sr. specialist"]
 
 
   return (
@@ -150,6 +164,19 @@ function TaskForm({addTask}) {
       <option value="High">High</option>
       <option value="Medium">Medium</option>
       <option value="Low">Low</option>
+    </select>
+    <select
+      value={responsible}
+      onChange={(e) => setResponsible(e.target.value)}
+    >
+      <option value="" disabled >
+        Select responsible person
+      </option>
+      {employes.map((employee) => (
+        <option key={employee} value={employee}>
+          {employee}
+        </option>
+      ))}
     </select>
     <input
       type="datetime-local"
@@ -184,7 +211,7 @@ function CompletedTaskList({ completedTasks, deleteTask }) {
 }
 
 function TaskItem({ task, deleteTask, completeTask}) {
-  const {title, priority, deadline, id, completed} = task
+  const {title, priority, responsible, deadline, id, completed} = task
 
   return (
     <li className={`task-item ${priority.toLowerCase()}`}>
@@ -192,9 +219,11 @@ function TaskItem({ task, deleteTask, completeTask}) {
         <div>
           <strong>{priority}:</strong> {title} 
         </div>
+        <div className="task-responsible">
+          <strong>Responsible:</strong> {responsible}
+        </div>
         <div className="task-deadline">
           Due: {new Date(deadline).toLocaleString()}
-
         </div>
       </div>
       <div className="task-buttons">
