@@ -181,6 +181,7 @@ h2 {
   font-size: 1.1em;
   transition: transform 0.2s, opacity 0.3s;
   animation: fade-in 0.5s ease-in-out;
+  flex-wrap: wrap;
 }
 
 .task-item.high {
@@ -208,6 +209,9 @@ h2 {
 .task-info {
   flex: 1;
   text-align: left;
+  word-wrap: break-word;   /* Перенос длинных слов */
+  overflow-wrap: break-word; /* Современный аналог */
+  min-width: 0; /* Нужно для корректного сжатия внутри flex */
 }
 
 /* Date text style */

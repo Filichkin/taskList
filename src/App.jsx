@@ -190,7 +190,7 @@ function TaskItem({ task, deleteTask, completeTask}) {
     <li className={`task-item ${priority.toLowerCase()}`}>
       <div className="task-info">
         <div>
-          {title} <strong>{priority}</strong>
+          <strong>{priority}:</strong> {title} 
         </div>
         <div className="task-deadline">
           Due: {new Date(deadline).toLocaleString()}
