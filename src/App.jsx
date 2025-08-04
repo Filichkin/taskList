@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -11,6 +11,15 @@ function App() {
       completed: true
     }
   );
+
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   function toggleSection(section) {
     setOpenSection((prev) => ({
@@ -109,7 +118,7 @@ function App() {
         </button>
       </div>
       {openSection.tasks && <TaskList completeTask={completeTask} deleteTask=
-      {deleteTask} activeTasks={activeTasks}/>}
+      {deleteTask} activeTasks={activeTasks} currentTime={currentTime}/>}
     </div>
 
     <div className="completed-task-container">
@@ -188,13 +197,18 @@ function TaskForm({addTask}) {
   );
 }
 
-function TaskList({ activeTasks, deleteTask, completeTask }) {
+function TaskList({ activeTasks, deleteTask, completeTask, currentTime }) {
 
   return (
     <ul className="task-list">
       {activeTasks.map((task) => (
-        <TaskItem completeTask={completeTask }deleteTask=
-        {deleteTask} task={task} key={task.id}/>
+        <TaskItem
+          completeTask={completeTask }
+          deleteTask={deleteTask} 
+          task={task} 
+          key={task.id}
+          isOverdue={new Date(task.deadline) < currentTime}
+        />
         ))}
     </ul>
   );
@@ -210,11 +224,11 @@ function CompletedTaskList({ completedTasks, deleteTask }) {
   )
 }
 
-function TaskItem({ task, deleteTask, completeTask}) {
+function TaskItem({ task, deleteTask, completeTask, isOverdue}) {
   const {title, priority, responsible, deadline, id, completed} = task
 
   return (
-    <li className={`task-item ${priority.toLowerCase()}`}>
+    <li className={`task-item ${priority.toLowerCase()} ${isOverdue ? "overdue" : ""}`}>
       <div className="task-info">
         <div>
           <strong>{priority}:</strong> {title} 
