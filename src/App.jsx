@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+
+const TaskContext = createContext();
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -69,75 +71,90 @@ function App() {
     }
   }
 
-  console.log(tasks);
-
   const activeTasks = sortTask(tasks.filter(task => !task.completed));
   const completedTasks = sortTask(tasks.filter(task => task.completed));
 
   console.log(completedTasks);
 
   return (
-  <div className="app">
-    <div className="task-container">
-      <h1>Task List With Priority</h1>
-      <button 
-        className={`close-button ${openSection.taskList ? "open" : ""}`}
-        onClick={() => toggleSection("taskList")}
-      >
-        +
-      </button>
-      {openSection.taskList && <TaskForm addTask={addTask}/>}
-    </div>
+    <TaskContext.Provider value={{ 
+      sortType,
+      sortOrder,
+      openSection,
+      currentTime,
+      toggleSection,
+      addTask,
+      deleteTask,
+      completeTask,
+      sortTask,
+      toggleSortOrder,
+      activeTasks,
+      completedTasks 
+      }}
+    >
+      <div className="app">
+        <div className="task-container">
+          <h1>Task List With Priority</h1>
+          <button 
+            className={`close-button ${openSection.taskList ? "open" : ""}`}
+            onClick={() => toggleSection("taskList")}
+          >
+            +
+          </button>
+          {openSection.taskList && <TaskForm addTask={addTask}/>}
+        </div>
 
-    <div className="task-container">
-      <h2>Tasks</h2>
-      <button 
-        className={`close-button ${openSection.tasks ? "open" : ""}`}
-        onClick={() => toggleSection("tasks")}
-      >
-        +
-      </button>
-      <div className="sort-controls">
-        <button
-        className={`sort-button ${sortType === "date" ? "active" : ""}`}
-        onClick={() => toggleSortOrder("date")}
-        >
-          By Date {sortType === "date" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
-        </button>
-        <button
-          className={`sort-button ${sortType === "priority" ? "active" : ""}`}
-          onClick={() => toggleSortOrder("priority")}
-        >
-          By Priority {sortType === "priority" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
-        </button>
-        <button
-          className={`sort-button ${sortType === "responsible" ? "active" : ""}`}
-          onClick={() => toggleSortOrder("responsible")}
-        >
-          By Responsible {sortType === "responsible" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
-        </button>
+        <div className="task-container">
+          <h2>Tasks</h2>
+          <button 
+            className={`close-button ${openSection.tasks ? "open" : ""}`}
+            onClick={() => toggleSection("tasks")}
+          >
+            +
+          </button>
+          <div className="sort-controls">
+            <button
+            className={`sort-button ${sortType === "date" ? "active" : ""}`}
+            onClick={() => toggleSortOrder("date")}
+            >
+              By Date {sortType === "date" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+            </button>
+            <button
+              className={`sort-button ${sortType === "priority" ? "active" : ""}`}
+              onClick={() => toggleSortOrder("priority")}
+            >
+              By Priority {sortType === "priority" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+            </button>
+            <button
+              className={`sort-button ${sortType === "responsible" ? "active" : ""}`}
+              onClick={() => toggleSortOrder("responsible")}
+            >
+              By Responsible {sortType === "responsible" && (sortOrder === "asc" ? "\u2191" : "\u2193")}
+            </button>
+          </div>
+          {openSection.tasks && <TaskList />}
+        </div>
+
+        <div className="completed-task-container">
+          <h2>Completed tasks</h2>
+          <button 
+            className={`close-button ${openSection.completed ? "open" : ""}`}
+            onClick={() => toggleSection("completed")}
+          >
+            +
+          </button>
+          {openSection.completed && <CompletedTaskList deleteTask=
+          {deleteTask} completedTasks={completedTasks}/>}
+        </div>
+        <Footer />
       </div>
-      {openSection.tasks && <TaskList completeTask={completeTask} deleteTask=
-      {deleteTask} activeTasks={activeTasks} currentTime={currentTime}/>}
-    </div>
-
-    <div className="completed-task-container">
-      <h2>Completed tasks</h2>
-      <button 
-        className={`close-button ${openSection.completed ? "open" : ""}`}
-        onClick={() => toggleSection("completed")}
-      >
-        +
-      </button>
-      {openSection.completed && <CompletedTaskList deleteTask=
-      {deleteTask} completedTasks={completedTasks}/>}
-    </div>
-    <Footer />
-  </div>
+    </TaskContext.Provider>
+  
   );
 }
 
-function TaskForm({addTask}) {
+function TaskForm() {
+  const { addTask} = useContext(TaskContext);
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState("Low");
   const [deadline, setDeadline] = useState("");
@@ -197,7 +214,8 @@ function TaskForm({addTask}) {
   );
 }
 
-function TaskList({ activeTasks, deleteTask, completeTask, currentTime }) {
+function TaskList() {
+  const { activeTasks, deleteTask, completeTask, currentTime } = useContext(TaskContext);
 
   return (
     <ul className="task-list">
@@ -214,17 +232,19 @@ function TaskList({ activeTasks, deleteTask, completeTask, currentTime }) {
   );
 }
 
-function CompletedTaskList({ completedTasks, deleteTask }) {
+function CompletedTaskList() {
+  const { completedTasks } = useContext(TaskContext);
   return (
     <ul className="completed-task-list">{
       completedTasks.map((task) => (
-      <TaskItem key={task.id} task={task} deleteTask={deleteTask}/>
+      <TaskItem key={task.id} task={task} />
       ))}
     </ul>
   )
 }
 
-function TaskItem({ task, deleteTask, completeTask, isOverdue}) {
+function TaskItem({ task }) {
+  const { deleteTask, completeTask, isOverdue } = useContext(TaskContext);
   const {title, priority, responsible, deadline, id, completed} = task
 
   return (
