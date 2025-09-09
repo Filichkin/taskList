@@ -2,9 +2,9 @@ import { useContext } from "react";
 
 import CompletedTaskList from "./CompletedTaskList";
 import Footer from "./Footer";
-import { TaskContext } from "./TaskProvider";
 import TaskForm from "./TaskForm";
 import TaskList from "./TaskList";
+import { useTask } from "./TaskProvider";
 
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
     sortOrder,
     deleteTask,
     completedTasks 
-  } = useContext(TaskContext);
+  } = useTask();
 
   return (
       <div className="app">

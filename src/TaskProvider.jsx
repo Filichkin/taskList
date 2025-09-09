@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 export const TaskContext = createContext();
 
@@ -92,7 +92,10 @@ export function TaskProvider({ children }) {
         >
             { children }
         </TaskContext.Provider>
-    )
+    );
 }
 
-export default TaskProvider
+export function useTask() {
+    const context = useContext(TaskContext);
+    return context;
+}
